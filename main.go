@@ -11,7 +11,7 @@ import (
 
 // The function that launches the program
 func main() {
-	p := tea.NewProgram(initialModel())
+	p := tea.NewProgram(initialModel(), tea.WithAltScreen())
 
 	if _, err := p.Run(); err != nil {
 		log.Fatal(err)
@@ -22,6 +22,7 @@ type model struct {
 	frameworks []Framework
 	cursor     int
 	bibi       *Bibi
+	help       []Help
 }
 
 func initialModel() model {
@@ -32,6 +33,9 @@ func initialModel() model {
 			*NewFramework("Next.js", "The React framework for the web"),
 		},
 		bibi: NewBibi("Welcome to Bibimbap!"),
+		help: []Help{
+			*NewHelp("Quit", []string{"ctrl-c"}),
+		},
 	}
 }
 
@@ -74,16 +78,34 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m model) View() string {
-	s := "\n\n"
+	f := "\n"
+	h := ""
+
 	if m.bibi.Text == "Choose a framework in the list below" {
 		for i, framework := range m.frameworks {
 			if m.cursor == i {
 				framework.Selected = true
 			}
 
-			s += fmt.Sprintf("%s\n", framework.Render())
+			f += fmt.Sprintf("%s\n", framework.Render())
+		}
+
+		m.help = append(
+			m.help,
+			*NewHelp("Up", []string{"↑", "k"}),
+			*NewHelp("Down", []string{"↓", "j"}),
+			*NewHelp("Select", []string{"enter"}),
+		)
+
+	}
+
+	for i, help := range m.help {
+		h += fmt.Sprintf("%s", help.Render())
+
+		if i < len(m.help)-1 {
+			h += "\n"
 		}
 	}
 
-	return lipgloss.NewStyle().Padding(1, 4).Render(m.bibi.Render() + s)
+	return lipgloss.NewStyle().Padding(1, 4).Render(lipgloss.JoinVertical(0, m.bibi.Render(), f, h))
 }

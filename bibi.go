@@ -1,8 +1,6 @@
 package main
 
-import (
-	"github.com/charmbracelet/lipgloss"
-)
+import "github.com/charmbracelet/lipgloss"
 
 var (
 	bibiBodyStyle = lipgloss.NewStyle().Foreground(orange)
