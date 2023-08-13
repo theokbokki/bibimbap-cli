@@ -18,11 +18,6 @@ func main() {
 	}
 }
 
-// A type for our error messages
-type (
-	errMsg error
-)
-
 type model struct {
 	frameworks []Framework
 	cursor     int
@@ -63,6 +58,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if m.cursor < len(m.frameworks)-1 {
 				m.cursor++
 			}
+
+		case "enter":
+			m.bibi.Text = "Ok great! I'll set things up for you, wait a sec..."
+			Setup(m.frameworks[m.cursor])
 		}
 	}
 
@@ -76,12 +75,14 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m model) View() string {
 	s := "\n\n"
-	for i, framework := range m.frameworks {
-		if m.cursor == i {
-			framework.Selected = true
-		}
+	if m.bibi.Text == "Choose a framework in the list below" {
+		for i, framework := range m.frameworks {
+			if m.cursor == i {
+				framework.Selected = true
+			}
 
-		s += fmt.Sprintf("%s\n", framework.Render())
+			s += fmt.Sprintf("%s\n", framework.Render())
+		}
 	}
 
 	return lipgloss.NewStyle().Padding(1, 4).Render(m.bibi.Render() + s)
