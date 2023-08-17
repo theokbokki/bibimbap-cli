@@ -65,7 +65,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case "enter":
 			m.bibi.Text = "Ok great! I'll set things up for you, wait a sec..."
-			Setup(m.frameworks[m.cursor])
+			m.Setup(m.frameworks[m.cursor])
 		}
 	}
 
