@@ -18,7 +18,6 @@ var (
 func NewInput() textinput.Model {
 	ti := textinput.New()
 	ti.Placeholder = "world-domination"
-	ti.Focus()
 	ti.CharLimit = 0
 	ti.Cursor.Style = cursorStyle
 	ti.PlaceholderStyle = placeholderStyle

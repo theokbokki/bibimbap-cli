@@ -63,12 +63,12 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Quit
 		// Going up
 		case "up", "k":
-			if m.cursor > 0 {
+			if m.step == "framework" && m.cursor > 0 {
 				m.cursor--
 			}
 		// Going down
 		case "down", "j":
-			if m.cursor < len(m.frameworks)-1 {
+			if m.step == "framework" && m.cursor < len(m.frameworks)-1 {
 				m.cursor++
 			}
 
@@ -94,6 +94,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		time.Sleep(1250 * time.Millisecond)
 		m.bibi.Text = "What's the name of your project?"
 		m.step = "input"
+		m.textinput.Focus()
 	}
 
 	m.textinput, cmd = m.textinput.Update(msg)
