@@ -5,6 +5,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
@@ -19,6 +20,8 @@ func main() {
 }
 
 type model struct {
+	step       string
+	textinput  textinput.Model
 	frameworks []Framework
 	cursor     int
 	bibi       *Bibi
@@ -26,7 +29,10 @@ type model struct {
 }
 
 func initialModel() model {
+
 	return model{
+		step:      "initial",
+		textinput: NewInput(),
 		frameworks: []Framework{
 			*NewFramework("Sveltekit", "Web development streamlined"),
 			*NewFramework("Nuxt", "The intuitive web framework"),
@@ -44,6 +50,8 @@ func (m model) Init() tea.Cmd {
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	var cmd tea.Cmd
+
 	switch msg := msg.(type) {
 	// The message is a keypress
 	case tea.KeyMsg:
@@ -64,30 +72,48 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 
 		case "enter":
-			m.bibi.Text = "Ok great! I'll set things up for you, wait a sec..."
-			m.Setup(m.frameworks[m.cursor])
+			if m.step == "input" {
+				m.bibi.Text = "Choose a framework in the list below"
+				m.step = "framework"
+			} else if m.step == "framework" {
+				m.bibi.Text = "Ok great! I'll set things up for you, wait a sec..."
+				m.Setup(m.frameworks[m.cursor])
+			}
 		}
 	}
 
-	if m.bibi.Text == "Welcome to Bibimbap!" {
+	if m.step == "initial" {
 		time.Sleep(1250 * time.Millisecond)
-		m.bibi.Text = "Choose a framework in the list below"
+		m.bibi.Text = "What's the name of your project?"
+		m.step = "input"
 	}
 
-	return m, nil
+	m.textinput, cmd = m.textinput.Update(msg)
+
+	return m, cmd
 }
 
 func (m model) View() string {
-	f := "\n"
+	s := "\n"
 	h := ""
 
-	if m.bibi.Text == "Choose a framework in the list below" {
+	if m.step == "input" {
+		s += m.textinput.View()
+		h += "\n"
+
+		m.help = append(
+			m.help,
+			*NewHelp("Validate", []string{"enter"}),
+		)
+	}
+
+	if m.step == "framework" {
 		for i, framework := range m.frameworks {
 			if m.cursor == i {
 				framework.Selected = true
 			}
 
-			f += fmt.Sprintf("%s\n", framework.Render())
+			s += fmt.Sprintf("%s\n", framework.Render())
 		}
 
 		m.help = append(
@@ -107,5 +133,5 @@ func (m model) View() string {
 		}
 	}
 
-	return lipgloss.NewStyle().Padding(1, 4).Render(lipgloss.JoinVertical(0, m.bibi.Render(), f, h))
+	return lipgloss.NewStyle().Padding(1, 4).Render(lipgloss.JoinVertical(0, m.bibi.Render(), s, h))
 }
