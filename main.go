@@ -26,6 +26,7 @@ type model struct {
 	cursor     int
 	bibi       *Bibi
 	help       []Help
+	err        string
 }
 
 func initialModel() model {
@@ -73,8 +74,14 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case "enter":
 			if m.step == "input" {
-				m.bibi.Text = "Choose a framework in the list below"
-				m.step = "framework"
+				if m.textinput.Value() == "" {
+					m.err = "Your project cannot have an empty name!"
+				} else {
+					m.err = ""
+					m.textinput.Blur()
+					m.bibi.Text = "Choose a framework in the list below"
+					m.step = "framework"
+				}
 			} else if m.step == "framework" {
 				m.bibi.Text = "Ok great! I'll set things up for you, wait a sec..."
 				m.step = "setup"
@@ -134,5 +141,17 @@ func (m model) View() string {
 		}
 	}
 
-	return lipgloss.NewStyle().Padding(1, 4).Render(lipgloss.JoinVertical(0, m.bibi.Render(), s, h))
+	return lipgloss.NewStyle().
+		Padding(1, 4).
+		Render(lipgloss.JoinVertical(
+			0,
+			m.bibi.Render(),
+			s,
+			func() string {
+				if m.err != "" {
+					return "\n" + lipgloss.NewStyle().Foreground(orange).Render(m.err)
+				}
+				return ""
+			}(),
+			h))
 }

@@ -65,7 +65,7 @@ func (m model) MoveFiles(f Framework) {
 	}
 	err = os.Rename("./tmp/shared/src-tauri", "./"+m.textinput.Value()+"/apps/desktop/src-tauri")
 
-	os.Remove("./tmp")
+	os.RemoveAll("tmp")
 
 	m.bibi.Text = "Setup complete! Have fun :))"
 
