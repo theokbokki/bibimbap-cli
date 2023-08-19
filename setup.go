@@ -24,8 +24,8 @@ func (m model) Setup(f Framework) {
 
 func Clone() {
 	r, err := git.PlainClone("./tmp", false, &git.CloneOptions{
-		URL:               "https://github.com/theokbokki/bibimbap",
-		ReferenceName:     "refs/heads/39-separate-shared-and-framework-specific-files",
+		URL: "https://github.com/theokbokki/bibimbap",
+		// ReferenceName:     "refs/heads/39-separate-shared-and-framework-specific-files",
 		RecurseSubmodules: git.DefaultSubmoduleRecursionDepth,
 	})
 
@@ -38,28 +38,36 @@ func Clone() {
 }
 
 func (m model) MoveFiles(f Framework) {
-	m.bibi.Text = "Moving files in the right place"
+	err := os.Mkdir("./"+m.textinput.Value(), 0755)
 
-	err := os.Mkdir("./my-project", 0755)
-	err = os.Rename("./tmp/shared/.gitignore", "./my-project/.gitignore")
-	err = os.Rename("./tmp/shared/.npmrc", "./my-project/.npmrc")
-	err = os.Rename("./tmp/shared/apps", "./my-project/apps")
-	err = os.Rename("./tmp/shared/package.json", "./my-project/package.json")
-	err = os.Rename("./tmp/shared/packages", "./my-project/packages")
-	err = os.Rename("./tmp/shared/pnpm-workspace.yaml", "./my-project/pnpm-workspace.yaml")
+	err = os.Rename("./tmp/shared/.gitignore", "./"+m.textinput.Value()+"/.gitignore")
+	err = os.Rename("./tmp/shared/.npmrc", "./"+m.textinput.Value()+"/.npmrc")
+	err = os.Rename("./tmp/shared/apps", "./"+m.textinput.Value()+"/apps")
+	err = os.Rename("./tmp/shared/package.json", "./"+m.textinput.Value()+"/package.json")
+	err = os.Rename("./tmp/shared/packages", "./"+m.textinput.Value()+"/packages")
+	err = os.Rename("./tmp/shared/pnpm-workspace.yaml", "./"+m.textinput.Value()+"/pnpm-workspace.yaml")
 
 	if f.Title == "Nuxt" {
-		err = os.Rename("./tmp/nuxt/pnpm-lock.yaml", "./my-project/pnpm-lock.yaml")
-		err = os.Rename("./tmp/nuxt/desktop", "./my-project/apps/desktop")
-		err = os.Rename("./tmp/shared/src-tauri", "./my-project/apps/desktop/src-tauri")
-		err = os.Rename("./tmp/nuxt/tauri.conf.json", "./my-project/apps/desktop/src-tauri/tauri.conf.json")
-		err = os.Rename("./tmp/nuxt/ui/components", "./my-project/packages/ui/lib/components")
-		err = os.Rename("./tmp/nuxt/ui/index.ts", "./my-project/packages/ui/index.ts")
-		err = os.Rename("./tmp/nuxt/ui/package.json", "./my-project/packages/ui/package.json")
-		err = os.Rename("./tmp/nuxt/web/package.json", "./my-project/apps/web/package.json")
-		err = os.Rename("./tmp/nuxt/web/js", "./my-project/apps/web/resources/js")
-		err = os.Rename("./tmp/nuxt/web/vite.config.js", "./my-project/apps/web/vite.config.js")
+		err = os.Rename("./tmp/nuxt/pnpm-lock.yaml", "./"+m.textinput.Value()+"/pnpm-lock.yaml")
+		err = os.Rename("./tmp/nuxt/desktop", "./"+m.textinput.Value()+"/apps/desktop")
+		err = os.Rename("./tmp/nuxt/tauri.conf.json", "./"+m.textinput.Value()+"/apps/desktop/src-tauri/tauri.conf.json")
+		err = os.Rename("./tmp/nuxt/ui/components", "./"+m.textinput.Value()+"/packages/ui/lib/components")
+		err = os.Rename("./tmp/nuxt/ui/index.ts", "./"+m.textinput.Value()+"/packages/ui/index.ts")
+		err = os.Rename("./tmp/nuxt/ui/package.json", "./"+m.textinput.Value()+"/packages/ui/package.json")
+		err = os.Rename("./tmp/nuxt/web/package.json", "./"+m.textinput.Value()+"/apps/web/package.json")
+		err = os.Rename("./tmp/nuxt/web/js", "./"+m.textinput.Value()+"/apps/web/resources/js")
+		err = os.Rename("./tmp/nuxt/web/vite.config.js", "./"+m.textinput.Value()+"/apps/web/vite.config.js")
 	}
+
+	_, err = os.Stat("./" + m.textinput.Value() + "/apps/desktop")
+	if os.IsNotExist(err) {
+		err = os.Mkdir("./"+m.textinput.Value()+"/apps/desktop", 0755)
+	}
+	err = os.Rename("./tmp/shared/src-tauri", "./"+m.textinput.Value()+"/apps/desktop/src-tauri")
+
+	os.Remove("./tmp")
+
+	m.bibi.Text = "Setup complete! Have fun :))"
 
 	CheckIfError(err)
 }

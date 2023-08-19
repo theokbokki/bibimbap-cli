@@ -77,6 +77,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.step = "framework"
 			} else if m.step == "framework" {
 				m.bibi.Text = "Ok great! I'll set things up for you, wait a sec..."
+				m.step = "setup"
 				m.Setup(m.frameworks[m.cursor])
 			}
 		}
